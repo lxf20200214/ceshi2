@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    // 跑通直播模式（以观众身份进入直播间）
+    // 1.创建Client对象
+    // 通过TRTC.createClient()方法创建Client对象
+    // 例如
+    // mode:互动直播模式,设置为live
+    // sdkAppId:您从腾讯云申请的sdkAppId
+    // userId:用户ID
+    // userSig:用户签名
+    const client = TRTC.createClient({
+      mode: "live",
+      sdkAppId,
+      userId,
+      userSig,
+    });
+    // 2.以观众身份进入直播房间
+    // 调用Client.join()进入音视频通话房间
+    // roomId:房间ID
+    // role:用户角色
+    // anchor:主播,主播角色具有发布本地流和接受远端流的权限,默认是主播角色
+    // audience:观众 观众角色只有接受远端流的权限,没有发布本地流的权限.若观众想要跟主播连麦互动,需要通过Client.switchRole()切换角色至anchor主播角色在发布本地流
+    client
+      .join({ roomId, role: "audience" })
+      .catch((error) => {
+        console.error("进房失败" + error);
+      })
+      .then(() => {
+        console.log("进房成功");
+      });
+    // 3.收看直播
+    //      1.远端流通过监听事件client.on('stream-added')获取,收到该事件后,通过Client.subscribe()订阅远端音视频流
+    // 说明:
+    // 请在Client.join()进房前注册client.on('steam-added')事件以确保您不会错过远端用户进房通知
+    client.on("stream-added", (event) => {
+      const remoteStream = event.stream;
+      console.log("远端流增加:" + remoteStream.getId());
+      //  订阅远端流
+      Client.subscribe(remoteStream);
+    });
+    //      2.在远端流订阅成功事件回调中,通过Stream.play()方法接受一个div元素ID作为参数,SDK内部会在该div元素下自动创建相应的音视频标签并在其上播放音视频
+    client.on;
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <video id="video" width="480" height="320" controls></video>
+
+    <script>
+        let video = document.getElementById('video');
+        let videoArr = []
+        var opt = {
+            audio: false,
+            video: {
+                width: 480,
+                height: 320
+            }
+        };
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia(opt)
+                .then(function (mediaStream) {
+                    console.log(mediaStream);
+                    let CompatibleURL = window.URL || window.webkitURL;
+
+                    video.srcObject = mediaStream;
+                    // video.onloadedmetadata = function (e) {
+                    video.play();
+                    // };
+                })
+                .catch(function (err) {
+                    console.log(err.name + ": " + err.message);
+                }); // always check for errors at the end.}
+        }
+        navigator.mediaDevices.enumerateDevices().then(res => {
+            console.log(res);
+        })
+
+
+        // .then(function (devices) {
+        //     console.log(devices)
+        //     devices.forEach(function (device) {
+        //         if (device.kind == 'videoinput') {
+        //             videoArr.push({
+        //                 'label': device.label,
+        //                 'id': device.deviceId
+        //             })
+        //         }
+        //     });
+        //     return videoArr;
+
+        // })
+        // .catch(function (err) {
+        //     console.log(err.name + ": " + err.message);
+
+        // });
+
+        // console.log(123, videoArr);
+    </script>
+</body>
+
+</html>

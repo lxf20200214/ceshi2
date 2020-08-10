@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <video id="video" width="480" height="320" autoplay></video>
+    <br>
+    <select id="allvideo"></select>
+
+
+    <script>
+        let videoArr = []
+        var allvideo = document.querySelector('#allvideo')
+        let video = document.getElementById('video');
+
+        var opt = {
+            audio: false,
+            video: {
+                width: 480,
+                height: 320
+            }
+        };
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia(opt)
+                .then(function (mediaStream) {
+                    console.log(mediaStream);
+                    let CompatibleURL = window.URL || window.webkitURL;
+
+                    video.srcObject = mediaStream;
+                    // video.onloadedmetadata = function (e) {
+                    video.play();
+                    // };
+                })
+                .catch(function (err) {
+                    console.log(err.name + ": " + err.message);
+                }); // always check for errors at the end.}
+        }
+        //首次运行引导用户，信任域名
+        var first = window.localStorage.getItem('first');
+        if (first == null) {
+            if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia) {
+                //调用用户媒体设备, 访问摄像头
+                getUserMedia({ video: { width: 480, height: 320 } }, success, error);
+            } else {
+                alert('不支持访问用户媒体');
+            }
+        }
+        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+            console.log('menumerateDevices is not supported!');
+        } else {
+            navigator.mediaDevices.enumerateDevices()
+                .then(gotDevices).catch(handleError);
+        }
+
+        // 遍历所有的设备，包括视频和音频设备,找到摄像头
+        function gotDevices(deviceInfos) {
+            console.log(deviceInfos);
+
+            if (deviceInfos.length > 1) {
+                var html = '<option value="">请选择摄像头</option>';
+                for (var i = 0; i < deviceInfos.length; i++) {
+
+                    html += `<option value="${deviceInfos[i].deviceId}">${deviceInfos[i].label}</option>`
+                }
+                deviceInfos = []
+                allvideo.innerHTML = html
+
+            } else {
+                openMedia(constraints)
+            }
+
+        }
+
+        function handleError(error) {
+            console.log('Error: ', error);
+        }
+        //访问用户媒体设备的兼容方法
+        function getUserMedia(constraints, success, error) {
+            if (navigator.mediaDevices.getUserMedia) {
+                //最新的标准API
+                navigator.mediaDevices.getUserMedia(constraints).then(success).catch(error);
+            } else if (navigator.webkitGetUserMedia) {
+                //webkit核心浏览器
+                navigator.webkitGetUserMedia(constraints, success, error)
+            } else if (navigator.mozGetUserMedia) {
+                //firfox浏览器
+                navigator.mozGetUserMedia(constraints, success, error);
+            } else if (navigator.getUserMedia) {
+                //旧版API
+                navigator.getUserMedia(constraints, success, error);
+            }
+        }
+        function success(stream) {
+            console.log(stream);
+            window.localStorage.setItem('first', "false");
+            // window.location.reload();
+        }
+        function error(error) {
+            console.log(`访问用户媒体设备失败${error.name}, ${error.message}`);
+        }
+
+
+        allvideo.addEventListener('change', e => {
+            console.log(e);
+            console.log(e.target.value);
+            const videoConstraints = {};
+            if (e.target.value === '') {
+                videoConstraints.facingMode = 'environment';
+            } else {
+                videoConstraints.deviceId = { exact: e.target.value };
+            }
+            const constraints = {
+                video: videoConstraints,
+                audio: false
+            };
+            navigator.mediaDevices
+                .getUserMedia(constraints)
+                .then(stream => {
+                    console.log(123, stream);
+                    currentStream = stream;
+                    video.srcObject = stream;
+                    // return navigator.mediaDevices.enumerateDevices();
+                    console.log(navigator.mediaDevices.enumerateDevices());
+                })
+                .catch(error => {
+                    console.error(error);
+
+                });
+        })
+
+
+
+    </script>
+
+</body>
+
+</html>

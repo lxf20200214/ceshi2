@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+</head>
+
+<body>
+    <video id="video" width="480" height="320" controls></video>
+    <button id="btn">点击</button>
+    <select id="select"></select>
+    <script type="text/javascript">
+        const button = document.getElementById('btn');
+        const select = document.getElementById('select');
+        let videoArr = []
+
+        var opt = {
+            audio: false,
+            video: {
+                width: 480,
+                height: 320
+            }
+        };
+        var video = document.querySelector('#video');
+        console.log(video);
+
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia(opt)
+                .then(function (mediaStream) {
+                    console.log(mediaStream);
+                    let CompatibleURL = window.URL || window.webkitURL;
+
+                    video.srcObject = mediaStream;
+                    // video.onloadedmetadata = function (e) {
+                    video.play();
+                    // };
+                })
+                .catch(function (err) {
+                    console.log(err.name + ": " + err.message);
+                }); // always check for errors at the end.}
+        }
+        button.addEventListener('click', event => {
+            // if (typeof currentStream !== 'undefined') {
+            //     stopMediaTracks(currentStream);
+            // }
+            const videoConstraints = {};
+            if (select.value === '') {
+                videoConstraints.facingMode = 'environment';
+            } else {
+                videoConstraints.deviceId = { exact: select.value };
+            }
+            const constraints = {
+                video: videoConstraints,
+                audio: false
+            };
+            navigator.mediaDevices
+                .getUserMedia(constraints)
+                .then(stream => {
+                    console.log(123, stream);
+                    currentStream = stream;
+                    video.srcObject = stream;
+                    // return navigator.mediaDevices.enumerateDevices();
+                    console.log(navigator.mediaDevices.enumerateDevices());
+                })
+                .catch(error => {
+                    console.error(error);
+
+                });
+
+        });
+        navigator.mediaDevices.enumerateDevices()
+            .then(function (devices) {
+                console.log(devices)
+                devices.forEach(function (device) {
+                    if (device.kind == 'videoinput') {
+                        videoArr.push({
+                            'label': device.label,
+                            'id': device.deviceId
+                        })
+                    }
+                });
+                console.log(123, videoArr);
+
+                return videoArr;
+
+            })
+            .catch(function (err) {
+                console.log(err.name + ": " + err.message);
+
+            });
+
+    </script>
+</body>
+
+</html>
